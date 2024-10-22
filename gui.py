@@ -3,7 +3,9 @@ from PyQt5.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
                              QLineEdit, QFrame, QScrollArea, QDesktopWidget)
 from PyQt5.QtCore import Qt, QPropertyAnimation, QEasingCurve, QSize
 from PyQt5.QtGui import QFont, QIcon, QFontDatabase
-from workers import SortByLocThread, FlattenFolderThread, SortByTimeThread
+from workers import (SortByLocThread, FlattenFolderThread, SortByTimeThread, 
+                    MetadataViewerThread)
+import os
 
 class ModernButton(QPushButton):
     def __init__(self, text, icon_path=None, parent=None):
@@ -71,6 +73,7 @@ class MediaGPSExtractorGUI(QMainWindow):
         content_card = CardWidget()
         card_layout = QVBoxLayout(content_card)
 
+        # Header
         header = QLabel("PinPoint")
         header.setAlignment(Qt.AlignCenter)
         header.setStyleSheet("""
@@ -81,12 +84,12 @@ class MediaGPSExtractorGUI(QMainWindow):
         """)
         card_layout.addWidget(header)
 
+        # Folder Selection Area
         folder_layout = QHBoxLayout()
         self.folder_input = QLineEdit()
         self.folder_input.setPlaceholderText("Select a folder")
         folder_layout.addWidget(self.folder_input)
         
-        # Browse Folder button
         browse_button = ModernButton('Browse', 'assets/icons/folder_icon.png')
         browse_button.clicked.connect(self.browse_folder)
         browse_button.setToolTip("Select a folder containing files")
@@ -94,28 +97,32 @@ class MediaGPSExtractorGUI(QMainWindow):
         
         card_layout.addLayout(folder_layout)
 
+        # Buttons Area
         button_layout = QHBoxLayout()
 
-        # Location Sort button
         location_button = ModernButton('Location Sort', 'assets/icons/play_icon.png')
         location_button.clicked.connect(self.sort_by_loc)
         location_button.setToolTip("Sort files by place taken")
         button_layout.addWidget(location_button)
 
-        # Time Sort button
         time_button = ModernButton('Time Sort', 'assets/icons/clock_icon.png')
         time_button.clicked.connect(self.sort_by_time)
         time_button.setToolTip("Sort files by creation time")
         button_layout.addWidget(time_button)
 
-        # Flatten Folder button
         flatten_button = ModernButton('Flatten Folder', 'assets/icons/flatten_icon.png')
         flatten_button.clicked.connect(self.flatten_folder)
         flatten_button.setToolTip("Flatten the selected folder")
         button_layout.addWidget(flatten_button)
 
+        metadata_button = ModernButton('View Metadata', 'assets/icons/metadata_icon.png')
+        metadata_button.clicked.connect(self.view_metadata)
+        metadata_button.setToolTip("View metadata for a specific file")
+        button_layout.addWidget(metadata_button)
+
         card_layout.addLayout(button_layout)
 
+        # Progress Bar
         self.progress_bar = QProgressBar()
         self.progress_bar.setTextVisible(False)
         self.progress_bar.setFixedHeight(10)
@@ -132,11 +139,13 @@ class MediaGPSExtractorGUI(QMainWindow):
         """)
         card_layout.addWidget(self.progress_bar)
 
+        # Status Label
         self.status_label = QLabel("Ready")
         self.status_label.setAlignment(Qt.AlignCenter)
         self.status_label.setStyleSheet("color: #bdc3c7; margin-top: 5px;")
         card_layout.addWidget(self.status_label)
 
+        # Output Area
         output_scroll = QScrollArea()
         output_scroll.setWidgetResizable(True)
         output_scroll.setStyleSheet("""
@@ -161,6 +170,7 @@ class MediaGPSExtractorGUI(QMainWindow):
 
         main_layout.addWidget(content_card)
 
+        # Main Window Style
         self.setStyleSheet("""
             QMainWindow {
                 background-color: #34495e;
@@ -203,12 +213,7 @@ class MediaGPSExtractorGUI(QMainWindow):
         self.status_label.setText("Sorting")
         self.status_label.setStyleSheet("color: #f39c12; margin-top: 5px;")
 
-        self.progress_animation = QPropertyAnimation(self.progress_bar, b"value")
-        self.progress_animation.setDuration(1000)
-        self.progress_animation.setStartValue(0)
-        self.progress_animation.setEndValue(0)
-        self.progress_animation.setEasingCurve(QEasingCurve.OutCubic)
-        self.progress_animation.start()
+        self._start_progress_animation()
 
         self.worker = SortByLocThread(folder_path)
         self.worker.update_progress.connect(self.update_progress)
@@ -227,12 +232,7 @@ class MediaGPSExtractorGUI(QMainWindow):
         self.status_label.setText("Flattening")
         self.status_label.setStyleSheet("color: #f39c12; margin-top: 5px;")
 
-        self.progress_animation = QPropertyAnimation(self.progress_bar, b"value")
-        self.progress_animation.setDuration(1000)
-        self.progress_animation.setStartValue(0)
-        self.progress_animation.setEndValue(0)
-        self.progress_animation.setEasingCurve(QEasingCurve.OutCubic)
-        self.progress_animation.start()
+        self._start_progress_animation()
 
         self.flatten_worker = FlattenFolderThread(folder_path)
         self.flatten_worker.update_progress.connect(self.update_progress)
@@ -251,18 +251,40 @@ class MediaGPSExtractorGUI(QMainWindow):
         self.status_label.setText("Sorting")
         self.status_label.setStyleSheet("color: #f39c12; margin-top: 5px;")
 
-        self.progress_animation = QPropertyAnimation(self.progress_bar, b"value")
-        self.progress_animation.setDuration(1000)
-        self.progress_animation.setStartValue(0)
-        self.progress_animation.setEndValue(0)
-        self.progress_animation.setEasingCurve(QEasingCurve.OutCubic)
-        self.progress_animation.start()
+        self._start_progress_animation()
 
         self.sort_time_worker = SortByTimeThread(folder_path)
         self.sort_time_worker.update_progress.connect(self.update_progress)
         self.sort_time_worker.update_output.connect(self.update_output)
         self.sort_time_worker.finished.connect(self.sort_time_finished)
         self.sort_time_worker.start()
+
+    def view_metadata(self):
+        file_path, _ = QFileDialog.getOpenFileName(
+            self,
+            "Select File",
+            self.folder_input.text(),
+            "All Files (*.*)"
+        )
+        
+        if file_path:
+            self.output_area.clear()
+            self.output_area.append(f"Reading metadata for: {os.path.basename(file_path)}")
+            self.status_label.setText("Reading Metadata")
+            self.status_label.setStyleSheet("color: #f39c12; margin-top: 5px;")
+
+            self.metadata_worker = MetadataViewerThread(file_path)
+            self.metadata_worker.update_output.connect(self.update_output)
+            self.metadata_worker.finished.connect(self.metadata_view_finished)
+            self.metadata_worker.start()
+
+    def _start_progress_animation(self):
+        self.progress_animation = QPropertyAnimation(self.progress_bar, b"value")
+        self.progress_animation.setDuration(1000)
+        self.progress_animation.setStartValue(0)
+        self.progress_animation.setEndValue(0)
+        self.progress_animation.setEasingCurve(QEasingCurve.OutCubic)
+        self.progress_animation.start()
 
     def update_progress(self, value):
         self.progress_animation.setEndValue(value)
@@ -283,6 +305,10 @@ class MediaGPSExtractorGUI(QMainWindow):
 
     def sort_time_finished(self):
         self.output_area.append("Sorting completed")
+        self.status_label.setText("Completed")
+        self.status_label.setStyleSheet("color: #2ecc71; margin-top: 5px;")
+
+    def metadata_view_finished(self):
         self.status_label.setText("Completed")
         self.status_label.setStyleSheet("color: #2ecc71; margin-top: 5px;")
 
