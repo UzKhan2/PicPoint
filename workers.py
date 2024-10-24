@@ -14,30 +14,37 @@ class SortByLocThread(QThread):
     def __init__(self, folder_path):
         super().__init__()
         self.folder_path = folder_path
+        self.total_files = 0
+        self.processed_files = 0
 
     def run(self):
         unsupported_formats = set()
-        files_processed = 0
-        total_files = len([f for f in glob.glob(os.path.join(self.folder_path, "*.*"))])
+        
+        # Count total files including those in subfolders
+        for root, _, files in os.walk(self.folder_path):
+            self.total_files += len(files)
 
-        for file_path in glob.glob(os.path.join(self.folder_path, "*.*")):
-            files_processed += 1
-            file_name = os.path.basename(file_path)
-            file_extension = os.path.splitext(file_path)[1].lower()
-            if file_extension in SUPPORTED_MEDIA_FORMATS:
-                self.process_media(file_path)
-            else:
-                self.update_output.emit(f"Unsupported file: {file_name}")
-                move_to_folder(file_path, 'Not Supported')
-                unsupported_formats.add(file_extension)
-            
-            self.update_progress.emit(int(files_processed / total_files * 100))
-            self.update_output.emit(f"Processed: {file_name} ({files_processed}/{total_files})")
-
-        if files_processed == 0:
+        if self.total_files == 0:
             self.update_output.emit("No files found to sort")
-        else:
-            self.update_output.emit(f"Total files processed: {files_processed}")
+            self.finished.emit()
+            return
+
+        for root, _, files in os.walk(self.folder_path):
+            for file in files:
+                file_path = os.path.join(root, file)
+                file_extension = os.path.splitext(file_path)[1].lower()
+                
+                if file_extension in SUPPORTED_MEDIA_FORMATS:
+                    self.process_media(file_path)
+                else:
+                    self.update_output.emit(f"Unsupported file: {file}")
+                    move_to_folder(file_path, 'Not Supported')
+                    unsupported_formats.add(file_extension)
+                
+                self.processed_files += 1
+                progress = int((self.processed_files / self.total_files) * 100)
+                self.update_progress.emit(progress)
+                self.update_output.emit(f"Processed: {file} ({self.processed_files}/{self.total_files})")
 
         if unsupported_formats:
             unsupported_str = "\nUnsupported file formats encountered:\n"
@@ -83,13 +90,22 @@ class FlattenFolderThread(QThread):
     def __init__(self, folder_path):
         super().__init__()
         self.folder_path = folder_path
+        self.total_files = 0
+        self.processed_files = 0
 
     def run(self):
         file_counts = {}
-        total_files = sum([len(files) for r, d, files in os.walk(self.folder_path)])
-        processed_files = 0
+        
+        # Count total files including those in subfolders
+        for root, _, files in os.walk(self.folder_path):
+            self.total_files += len(files)
 
-        for root, dirs, files in os.walk(self.folder_path):
+        if self.total_files == 0:
+            self.update_output.emit("No files found to flatten")
+            self.finished.emit()
+            return
+
+        for root, _, files in os.walk(self.folder_path):
             for file in files:
                 src_path = os.path.join(root, file)
                 
@@ -103,9 +119,10 @@ class FlattenFolderThread(QThread):
                     dest_path = os.path.join(self.folder_path, file.replace('_', ' '))
                 
                 shutil.move(src_path, dest_path)
-                processed_files += 1
-                self.update_progress.emit(int(processed_files / total_files * 100))
-                self.update_output.emit(f"Moved: {file} ({processed_files}/{total_files})")
+                self.processed_files += 1
+                progress = int((self.processed_files / self.total_files) * 100)
+                self.update_progress.emit(progress)
+                self.update_output.emit(f"Moved: {file} ({self.processed_files}/{self.total_files})")
 
         self.finished.emit()
 
@@ -117,28 +134,39 @@ class SortByTimeThread(QThread):
     def __init__(self, folder_path):
         super().__init__()
         self.folder_path = folder_path
+        self.total_files = 0
+        self.processed_files = 0
 
     def run(self):
-        files = [f for f in os.listdir(self.folder_path) if os.path.isfile(os.path.join(self.folder_path, f))]
-        total_files = len(files)
+        # Count total files including those in subfolders
+        for root, _, files in os.walk(self.folder_path):
+            self.total_files += len(files)
 
-        for index, file in enumerate(files, 1):
-            file_path = os.path.join(self.folder_path, file)
-            try:
-                date = get_creation_time(file_path)
-                
-                year_month = date.strftime("%b, %y")
-                new_folder = os.path.join(self.folder_path, year_month)
-                if not os.path.exists(new_folder):
-                    os.makedirs(new_folder)
-                
-                new_file_path = os.path.join(new_folder, file)
-                shutil.move(file_path, new_file_path)
-                
-                self.update_output.emit(f"Moved {file} to {year_month} ({index}/{total_files})")
-            except Exception as e:
-                self.update_output.emit(f"Error processing {file}: {str(e)}")
-            
-            self.update_progress.emit(int(index / total_files * 100))
+        if self.total_files == 0:
+            self.update_output.emit("No files found to sort")
+            self.finished.emit()
+            return
+
+        for root, _, files in os.walk(self.folder_path):
+            for file in files:
+                file_path = os.path.join(root, file)
+                try:
+                    date = get_creation_time(file_path)
+                    
+                    year_month = date.strftime("%b, %y")
+                    new_folder = os.path.join(self.folder_path, year_month)
+                    if not os.path.exists(new_folder):
+                        os.makedirs(new_folder)
+                    
+                    new_file_path = os.path.join(new_folder, file)
+                    shutil.move(file_path, new_file_path)
+                    
+                    self.processed_files += 1
+                    progress = int((self.processed_files / self.total_files) * 100)
+                    self.update_progress.emit(progress)
+                    self.update_output.emit(f"Moved {file} to {year_month} ({self.processed_files}/{self.total_files})")
+                except Exception as e:
+                    self.update_output.emit(f"Error processing {file}: {str(e)}")
+                    self.processed_files += 1
 
         self.finished.emit()
