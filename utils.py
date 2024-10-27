@@ -8,31 +8,19 @@ import exiftool
 from datetime import datetime
 from constants import IMAGE_FORMATS, VIDEO_FORMATS
 
-def print_file_info(path):
-    file_name = os.path.basename(path)
-    file_size = os.path.getsize(path)
-    print(f"File: {file_name}")
-    print(f"Size: {file_size} bytes")
+def check_internet_connection():
+    try:
+        # Try to connect to OpenStreetMap's servers with a timeout of 3 seconds
+        requests.get("https://nominatim.openstreetmap.org", timeout=3)
+        return True
+    except Exception:
+        return False
 
 def extract_gps_info_image(file_path):
     pillow_heif.register_heif_opener()
     
-    print_file_info(file_path)
-    
     try:
         with Image.open(file_path) as img:
-            print(f"Format: {img.format}")
-            print(f"Size: {img.size}")
-            
-            exif_data = img.getexif()
-            if exif_data:
-                relevant_tags = ['Model', 'DateTime']
-                for tag_id, value in exif_data.items():
-                    tag = ExifTags.TAGS.get(tag_id, tag_id)
-                    if tag in relevant_tags:
-                        if isinstance(value, bytes):
-                            value = value.decode(errors='replace')
-                        print(f"{tag}: {value}")
             
             exif_dict = piexif.load(img.info.get("exif", b""))
 
@@ -68,21 +56,13 @@ def extract_gps_info_image(file_path):
         print(f"Error processing the image EXIF data: {e}")
     return None
 
-def extract_gps_info_video(file_path):
-    print_file_info(file_path)
-    
+def extract_gps_info_video(file_path):  
     try:
         with exiftool.ExifToolHelper() as et:
             metadata = et.get_metadata(file_path)[0]
             
             print(f"Format: {metadata.get('File:FileType', 'Unknown')}")
             print(f"Size: ({metadata.get('File:ImageWidth', 'Unknown')}, {metadata.get('File:ImageHeight', 'Unknown')})")
-            
-            print(f"Model: {metadata.get('QuickTime:Model', 'Unknown')}")
-            create_date = metadata.get('QuickTime:CreateDate', 'Unknown')
-            if create_date != 'Unknown':
-                create_date = datetime.strptime(create_date, "%Y:%m:%d %H:%M:%S").strftime("%Y:%m:%d %H:%M:%S")
-            print(f"DateTime: {create_date}")
             
             lat = metadata.get('Composite:GPSLatitude')
             lon = metadata.get('Composite:GPSLongitude')
@@ -95,7 +75,7 @@ def extract_gps_info_video(file_path):
     except Exception as e:
         print(f"An error occurred: {str(e)}")
         return None
-
+    
 def convert_to_degrees(value):
     d = float(value[0][0]) / float(value[0][1])
     m = float(value[1][0]) / float(value[1][1])

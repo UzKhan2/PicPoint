@@ -1,4 +1,4 @@
-"your-theme-name": {
+"theme-name": {
     "name": "Your Theme Display Name",
     "preview": "#MAIN_COLOR_HEX",  # This is the color shown in the preview circle
     "colors": {

@@ -13,6 +13,4 @@ PinPoint is a desktop application designed to organize and sort your images and 
 ### TODO
 
 - [ ] Allow users to see individual file metadata
-- [ ] Allow for multi-level sorting
 - [ ] Add tag sorting
-- [ ] Reaccount for when folders don't have any files
