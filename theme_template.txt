@@ -3,18 +3,18 @@
     "preview": "#MAIN_COLOR_HEX",  # This is the color shown in the preview circle
     "colors": {
         "main_bg": "#COLOR",      # Main window background
-        "card_bg": "#COLOR",      # Card background
+        "card_bg": "#COLOR",      # Card/dialog background
         "input_bg": "#COLOR",     # Input field background
         "text": "#COLOR",         # Main text color
-        "secondary_text": "#COLOR", # Secondary text color
+        "secondary_text": "#COLOR", # Secondary/dimmed text color
         "button_bg": "#COLOR",    # Button background
         "button_hover": "#COLOR", # Button hover state
         "button_pressed": "#COLOR", # Button pressed state
         "progress_bg": "#COLOR",  # Progress bar background
         "progress_chunk": "#COLOR", # Progress bar fill
-        "success": "#COLOR",      # Success state color
-        "warning": "#COLOR",      # Warning state color
-        "error": "#COLOR",        # Error state color
+        "success": "#COLOR",      # Success message/state color
+        "warning": "#COLOR",      # Warning message/state color
+        "error": "#COLOR",        # Error message/state color
         "border": "none"          # 1px solid #COLOR" for light themes
     }
 }

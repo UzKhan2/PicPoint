@@ -1,5 +1,7 @@
 PyQt5
+PyQtWebEngine
 Pillow
-pillow_heif
+pillow-heif
 requests
 pyexiftool
+piexif

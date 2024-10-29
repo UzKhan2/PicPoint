@@ -205,6 +205,146 @@ class ThemeManager:
                     "error": "#F7768E",
                     "border": "none"
                 }
+            },
+            "catppuccin": {
+                "name": "Catppuccin Theme",
+                "preview": "#1E1E2E",
+                "colors": {
+                    "main_bg": "#1E1E2E",
+                    "card_bg": "#24273A",
+                    "input_bg": "#363A4F",
+                    "text": "#CAD3F5",
+                    "secondary_text": "#B8C0E0",
+                    "button_bg": "#8AADF4",
+                    "button_hover": "#7DC4E4",
+                    "button_pressed": "#5B6078",
+                    "progress_bg": "#363A4F",
+                    "progress_chunk": "#A6DA95",
+                    "success": "#A6DA95",
+                    "warning": "#EED49F",
+                    "error": "#ED8796",
+                    "border": "none"
+                }
+            },
+            "one-dark": {
+                "name": "One Dark Theme",
+                "preview": "#282C34",
+                "colors": {
+                    "main_bg": "#282C34",
+                    "card_bg": "#21252B",
+                    "input_bg": "#3B4048",
+                    "text": "#ABB2BF",
+                    "secondary_text": "#828997",
+                    "button_bg": "#61AFEF",
+                    "button_hover": "#528BFF",
+                    "button_pressed": "#4B5263",
+                    "progress_bg": "#3B4048",
+                    "progress_chunk": "#98C379",
+                    "success": "#98C379",
+                    "warning": "#E5C07B",
+                    "error": "#E06C75",
+                    "border": "none"
+                }
+            },
+            "ayu-dark": {
+                "name": "Ayu Dark Theme",
+                "preview": "#0A0E14",
+                "colors": {
+                    "main_bg": "#0A0E14",
+                    "card_bg": "#0F1419",
+                    "input_bg": "#1C1F25",
+                    "text": "#B3B1AD",
+                    "secondary_text": "#828A97",
+                    "button_bg": "#39BAE6",
+                    "button_hover": "#59C2FF",
+                    "button_pressed": "#1C1F25",
+                    "progress_bg": "#1C1F25",
+                    "progress_chunk": "#C2D94C",
+                    "success": "#C2D94C",
+                    "warning": "#FFB454",
+                    "error": "#FF3333",
+                    "border": "none"
+                }
+            },
+            "rose-pine": {
+                "name": "Rosé Pine Theme",
+                "preview": "#191724",
+                "colors": {
+                    "main_bg": "#191724",
+                    "card_bg": "#1F1D2E",
+                    "input_bg": "#26233A",
+                    "text": "#E0DEF4",
+                    "secondary_text": "#908CAA",
+                    "button_bg": "#9CCFD8",
+                    "button_hover": "#31748F",
+                    "button_pressed": "#26233A",
+                    "progress_bg": "#26233A",
+                    "progress_chunk": "#A6E3A1",
+                    "success": "#A6E3A1",
+                    "warning": "#F6C177",
+                    "error": "#EB6F92",
+                    "border": "none"
+                }
+            },
+            "everforest": {
+                "name": "Everforest Theme",
+                "preview": "#2B3339",
+                "colors": {
+                    "main_bg": "#2B3339",
+                    "card_bg": "#323C41",
+                    "input_bg": "#404C51",
+                    "text": "#D3C6AA",
+                    "secondary_text": "#9DA9A0",
+                    "button_bg": "#A7C080",
+                    "button_hover": "#83C092",
+                    "button_pressed": "#404C51",
+                    "progress_bg": "#404C51",
+                    "progress_chunk": "#A7C080",
+                    "success": "#A7C080",
+                    "warning": "#E69875",
+                    "error": "#E67E80",
+                    "border": "none"
+                }
+            },
+            "light": {
+                "name": "Light Theme",
+                "preview": "#FFFFFF",
+                "colors": {
+                    "main_bg": "#FFFFFF",
+                    "card_bg": "#F5F5F5",
+                    "input_bg": "#EEEEEE",
+                    "text": "#2C3E50",
+                    "secondary_text": "#7F8C8D",
+                    "button_bg": "#3498DB",
+                    "button_hover": "#2980B9",
+                    "button_pressed": "#2574A9",
+                    "progress_bg": "#EEEEEE",
+                    "progress_chunk": "#2ECC71",
+                    "success": "#27AE60",
+                    "warning": "#F39C12",
+                    "error": "#E74C3C",
+                    "border": "1px solid #E0E0E0"
+                }
+            },
+            "github-light": {
+                "name": "GitHub Light Theme",
+                "preview": "#FFFFFF",
+                "colors": {
+                    "main_bg": "#FFFFFF",
+                    "card_bg": "#F6F8FA",
+                    "input_bg": "#EAEEF2",
+                    "text": "#24292F",
+                    "secondary_text": "#57606A",
+                    "button_bg": "#2DA44E",
+                    "button_hover": "#2C974B",
+                    "button_pressed": "#298E46",
+                    "progress_bg": "#EAEEF2",
+                    "progress_chunk": "#2DA44E",
+                    "success": "#2DA44E",
+                    "warning": "#D29922",
+                    "error": "#CF222E",
+                    "border": "1px solid #D0D7DE"
+                }
             }
         }
         return themes

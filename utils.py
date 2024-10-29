@@ -1,12 +1,12 @@
-import os
-import piexif
 from PIL import Image, ExifTags, UnidentifiedImageError
+from constants import IMAGE_FORMATS, VIDEO_FORMATS
+from datetime import datetime
 import pillow_heif
+import exiftool
 import requests
 import shutil
-import exiftool
-from datetime import datetime
-from constants import IMAGE_FORMATS, VIDEO_FORMATS
+import piexif
+import os
 
 def check_internet_connection():
     try:
@@ -98,7 +98,7 @@ def get_location_from_coordinates(lat, lon):
     if response.status_code == 200:
         data = response.json()
         address = data.get('address', {})
-        city = address.get('city') or address.get('town') or address.get('village') or 'Unknown'
+        city = address.get('city') or address.get('town') or address.get('village') or address.get('county') or 'Unknown'
         return city
     else:
         print(f"Error: Unable to fetch location data. Status code: {response.status_code}")

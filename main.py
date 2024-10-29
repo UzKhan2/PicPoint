@@ -1,9 +1,8 @@
-import sys
-from PyQt5.QtWidgets import QApplication
 from PyQt5.QtGui import QFont, QFontDatabase
-from gui import MediaGPSExtractorGUI
-from gui import SettingsDialog
+from PyQt5.QtWidgets import QApplication
 from theme_manager import ThemeManager
+from gui import MediaGPSExtractorGUI
+import sys
 
 def main():
     app = QApplication(sys.argv)
